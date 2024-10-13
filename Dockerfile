@@ -3,9 +3,9 @@ FROM eclipse-temurin:11-jdk-jammy as deps
 
 WORKDIR /build
 
+# Copiar o wrapper mvnw e a pasta .mvn diretamente da raiz do repositório.
 COPY --chmod=0755 mvnw mvnw
-COPY .mvn/ .mvn/ || true
-
+COPY .mvn/ .mvn/
 
 # Baixar dependências em um passo separado para aproveitar o cache do Docker.
 RUN --mount=type=bind,source=pom.xml,target=pom.xml \
@@ -19,6 +19,8 @@ FROM deps as package
 WORKDIR /build
 
 COPY ./src src/
+COPY pom.xml .
+
 RUN --mount=type=bind,source=pom.xml,target=pom.xml \
     --mount=type=cache,target=/root/.m2 \
     ./mvnw package -DskipTests && \
